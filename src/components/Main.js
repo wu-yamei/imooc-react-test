@@ -2,6 +2,7 @@ require('normalize.css/normalize.css');
 require('styles/App.scss');
 
 import React, { Component } from 'react';
+import {findDOMNode} from 'react-dom';
 import ImgFigure from './imgFigure.js';
 
 //引入图片路径
@@ -45,10 +46,12 @@ class AppComponent extends Component {
 	rearrange(centerIndex){
 		var a = this.state.imgArrageArr;
 		var b = this.Constant;
+		// console.log(b);
 
 		//居中图片
 		var imgCenterArr = a.splice(centerIndex, 1); //splice 数组切割返回被删除的对象， 会修改原数组， 第二个参数为个数
 		imgCenterArr[0].pos = b.centerPos;
+		// console.log(imgCenterArr[0]);
 
 		//上侧图片
 		var topImgNum = Math.ceil(Math.random() * 2); // top 图片个数
@@ -60,10 +63,11 @@ class AppComponent extends Component {
 				top: getRandom(b.vPosRange.topY[0], b.vPosRange.topY[1])
 			}
 		});
+		// console.log(imgTopArr);
 		//两侧图片
 		for(var i = 0, j = a.length, k = j / 2; i < j; i++){
 			var pos = null;
-			if(i < j){
+			if(i < k){
 				pos = b.hPosRange.leftSecX;
 			}else{
 				pos = b.hPosRange.rightSecX;
@@ -75,13 +79,17 @@ class AppComponent extends Component {
 		}
 
 		if(imgTopArr && imgTopArr[0]){
-			a.splice(topSliceIndex, 0, imgTopArr);
+			a.splice(topSliceIndex, 0, imgTopArr[0]);
+			if(imgTopArr[1]){
+				a.splice(topSliceIndex + 1, 0, imgTopArr[1]);
+			}
 		}
-		a.splice(centerIndex, 0, imgCenterArr);
+		a.splice(centerIndex, 0, imgCenterArr[0]);
 
 		this.setState({
 			imgArrageArr: a
 		});
+		// console.log(this.state.imgArrageArr);
 		this.initImgFigures();
 	}
 
@@ -91,8 +99,8 @@ class AppComponent extends Component {
 			h = window.innerHeight,
 			halfW = Math.ceil(w / 2),
 			halfH = Math.ceil(h / 2),
-			imgW = Math.ceil(w / 6), 
-			imgH = Math.ceil(h / 6),
+			imgW = Math.ceil(w / 5), 
+			imgH = Math.ceil(h / 4),
 			halfImgW = Math.ceil(imgW / 2),
 			halfImgH = Math.ceil(imgH / 2);
 			// console.log(w, h ,halfW, halfH, imgW, imgH, halfImgW, halfImgH);
@@ -134,7 +142,7 @@ class AppComponent extends Component {
 	}
 	render() {
 	    return (
-	      	<section className="stage">
+	      	<section className="stage" ref="stage">
 	      		<section className="img-sec">{this.imgFigures}</section>
 	      		<nav className="controller-nav">{this.controllerUnits}</nav>
 	      	</section>
