@@ -4,6 +4,7 @@ require('styles/App.scss');
 import React, { Component } from 'react';
 import {findDOMNode} from 'react-dom';
 import ImgFigure from './imgFigure.js';
+import ControllerUnit from './controllerUnit.js';
 
 //引入图片路径
 var imgDatas = require('../data/imgData.json');
@@ -18,12 +19,16 @@ imgDatas = (function (imgDatas) {
 function getRandom(low, high){
 	return Math.ceil(Math.random() * (high - low) + low);
 }
+// 随机生成 0 - 30 度数
+function get30degRamdom(){
+	return (Math.random() > 0.5? '' : '-') + Math.random() * 30;
+}
 
 class AppComponent extends Component {
 	constructor(){
 		super()
 		this.state = {
-			imgArrageArr: [] // 保存初始化位置信息 {pos: {left: 0, right: 0}}
+			imgArrageArr: [] // 保存初始化位置信息 {pos: {left: 0, right: 0}, rotate: 0, isReverse: false, isCenter: false}
 		}
 		this.imgFigures = [];
 		this.controllerUnits = [];
@@ -41,7 +46,30 @@ class AppComponent extends Component {
 			topY: [0, 0]
 		}
 	}
+	initImgFigures(){
+		var controllerUnits = [], imgFigures = [];
+		imgDatas.forEach(function(val, index){
+			if(!this.state.imgArrageArr[index]){
+				var a = this.state.imgArrageArr;
+				a[index] = {pos: {left: 0, top: 0}, rotate: 0, isReverse: false, isCenter: false}
+				this.setState({
+					imgArrageArr: a
+				});
+			}
+
+			imgFigures.push(<ImgFigure data={val} arrange={this.state.imgArrageArr[index]} click={this.clickCallback} index={index} key={index}/>);
+
+			controllerUnits.push(<ControllerUnit key={index}/>);
+
+		}.bind(this));
+
 	
+		this.imgFigures = imgFigures;
+		this.controllerUnits = controllerUnits;
+	}
+	componentWillMount(){
+		this.initImgFigures();
+	}
 	//指定图片位置， 传入居中图片index
 	rearrange(centerIndex){
 		var a = this.state.imgArrageArr;
@@ -50,7 +78,12 @@ class AppComponent extends Component {
 
 		//居中图片
 		var imgCenterArr = a.splice(centerIndex, 1); //splice 数组切割返回被删除的对象， 会修改原数组， 第二个参数为个数
-		imgCenterArr[0].pos = b.centerPos;
+		imgCenterArr[0] = {
+			pos: b.centerPos,
+			rotate: 0,
+			isReverse: false,
+			isCenter: true
+		};
 		// console.log(imgCenterArr[0]);
 
 		//上侧图片
@@ -58,10 +91,15 @@ class AppComponent extends Component {
 		var topSliceIndex = Math.ceil(Math.random() * (a.length - topImgNum));
 		var imgTopArr = a.splice(topSliceIndex, topImgNum);
 		imgTopArr.forEach(function(val ,index){
-			imgTopArr[index].pos = {
-				left: getRandom(b.vPosRange.x[0], b.vPosRange.x[1]),
-				top: getRandom(b.vPosRange.topY[0], b.vPosRange.topY[1])
-			}
+			imgTopArr[index] = {
+				pos: {
+					left: getRandom(b.vPosRange.x[0], b.vPosRange.x[1]),
+					top: getRandom(b.vPosRange.topY[0], b.vPosRange.topY[1])
+				},
+				rotate: get30degRamdom(),
+				isReverse: false,
+				isCenter: false
+			};
 		});
 		// console.log(imgTopArr);
 		//两侧图片
@@ -72,9 +110,14 @@ class AppComponent extends Component {
 			}else{
 				pos = b.hPosRange.rightSecX;
 			}
-			a[i].pos = {
-				left: getRandom(pos[0], pos[1]),
-				top: getRandom(b.hPosRange.y[0], b.hPosRange.y[1])
+			a[i] = {
+				pos: {
+					left: getRandom(pos[0], pos[1]),
+					top: getRandom(b.hPosRange.y[0], b.hPosRange.y[1])
+				},
+				rotate: get30degRamdom(),
+				isReverse: false,
+				isCenter: false
 			};
 		}
 
@@ -92,7 +135,14 @@ class AppComponent extends Component {
 		// console.log(this.state.imgArrageArr);
 		this.initImgFigures();
 	}
-
+	render() {
+	    return (
+	      	<section className="stage" ref="stage">
+	      		<section className="img-sec">{this.imgFigures}</section>
+	      		<nav className="controller-nav">{this.controllerUnits}</nav>
+	      	</section>
+	    );
+	}
 	//组件加载完，计算图片位置范围
 	componentDidMount (){
 		var w = window.innerWidth,
@@ -122,31 +172,20 @@ class AppComponent extends Component {
 
 		this.rearrange(0);
 	}
-	initImgFigures(){
-		var controllerUnits = [], imgFigures = [];
-		imgDatas.forEach(function(val, index){
-			if(!this.state.imgArrageArr[index]){
-				var a = this.state.imgArrageArr;
-				a[index] = {pos: {left: 0, top: 0}}
-				this.setState({
-					imgArrageArr: a
-				});
-			}
-			imgFigures.push(<ImgFigure data={val} arrange={this.state.imgArrageArr[index]} key={index}/>);
-		}.bind(this));
-		this.imgFigures = imgFigures;
-		this.controllerUnits = controllerUnits;
-	}
-	componentWillMount(){
-		this.initImgFigures();
-	}
-	render() {
-	    return (
-	      	<section className="stage" ref="stage">
-	      		<section className="img-sec">{this.imgFigures}</section>
-	      		<nav className="controller-nav">{this.controllerUnits}</nav>
-	      	</section>
-	    );
+	clickCallback = (index) => {
+		var a = this.state.imgArrageArr;
+		if(a[index].isCenter){
+			a[index].isReverse = !a[index].isReverse;
+			this.setState({
+				imgArrageArr: a
+			});
+			this.initImgFigures();
+		}else{
+			a[index].isCenter = true;
+			this.rearrange(index);
+		}
+		
+		// console.log(this.state.imgArrageArr);
 	}
 }
 

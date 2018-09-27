@@ -6,15 +6,41 @@ class ImgFigure extends Component{
         super(props);
     }
 	render(){
-		var styleObj = this.props.arrange.pos;
+		var styleObj = {};
+		var b = this.props.arrange;
+		var className = b.isReverse? 'img-figure reverse' : 'img-figure';
+		// console.log(className);
+		if(b.pos){
+			styleObj = b.pos;
+		}
+		// console.log(styleObj);
+		if(b.rotate){
+			(['Webkit', 'Moz', 'Ms', 'O', '']).forEach(function(val){
+				styleObj[val + 'TransForm'] = 'rotate(' + b.rotate + 'deg)';
+			});
+		}
+		if(b.isCenter){
+			styleObj['zIndex'] = 11;
+		}
+		// console.log(styleObj);
+
 		return (
-			<figure className="img-figure" style={styleObj}>
-				<img src={this.props.data.imgUrl} alt={this.props.data.title}/>
-				<figcaption>
-					<h2 className="img-title">{this.props.data.title}</h2>
-				</figcaption>
+			<figure className={className} style={styleObj} onClick={(e) => this.clickHandle(e ,this.props.index)}>
+				<div className="box">
+					<img src={this.props.data.imgUrl} alt={this.props.data.title}/>
+					<figcaption>
+						<h2 className="img-title">{this.props.data.title}</h2>
+						<div className="img-back">{this.props.data.desc}</div>
+					</figcaption>
+				</div>
+				
 			</figure>
 		);
+	}
+
+	clickHandle(e, index){
+		// console.log(index);
+		this.props.click(index);
 	}
 }
 
