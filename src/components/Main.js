@@ -59,7 +59,7 @@ class AppComponent extends Component {
 
 			imgFigures.push(<ImgFigure data={val} arrange={this.state.imgArrageArr[index]} click={this.clickCallback} index={index} key={index}/>);
 
-			controllerUnits.push(<ControllerUnit key={index}/>);
+			controllerUnits.push(<ControllerUnit arrange={this.state.imgArrageArr[index]} click={this.clickCallback} index={index} key={index}/>);
 
 		}.bind(this));
 
@@ -87,7 +87,7 @@ class AppComponent extends Component {
 		// console.log(imgCenterArr[0]);
 
 		//上侧图片
-		var topImgNum = Math.ceil(Math.random() * 2); // top 图片个数
+		var topImgNum = Math.floor(Math.random() * 2); // top 图片个数
 		var topSliceIndex = Math.ceil(Math.random() * (a.length - topImgNum));
 		var imgTopArr = a.splice(topSliceIndex, topImgNum);
 		imgTopArr.forEach(function(val ,index){
@@ -123,9 +123,6 @@ class AppComponent extends Component {
 
 		if(imgTopArr && imgTopArr[0]){
 			a.splice(topSliceIndex, 0, imgTopArr[0]);
-			if(imgTopArr[1]){
-				a.splice(topSliceIndex + 1, 0, imgTopArr[1]);
-			}
 		}
 		a.splice(centerIndex, 0, imgCenterArr[0]);
 

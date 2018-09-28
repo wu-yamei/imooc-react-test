@@ -15,8 +15,8 @@ class ImgFigure extends Component{
 		}
 		// console.log(styleObj);
 		if(b.rotate){
-			(['Webkit', 'Moz', 'Ms', 'O', '']).forEach(function(val){
-				styleObj[val + 'TransForm'] = 'rotate(' + b.rotate + 'deg)';
+			(['WebkitTransForm', 'MozTransForm', 'msTransForm', 'transform']).forEach(function(val){
+				styleObj[val] = 'rotate(' + b.rotate + 'deg)';
 			});
 		}
 		if(b.isCenter){

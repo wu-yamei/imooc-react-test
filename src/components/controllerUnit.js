@@ -7,12 +7,17 @@ class ControllerUnit extends Component{
         super(props);
     }
 	render(){
+		 // is-center is-reverse
+		 var a = this.props.arrange;
+		 // console.log(a);
+		 var className = 'controller-unit';
+		className += a.isCenter? a.isReverse? ' is-reverse is-center' : ' is-center' : '';
 		return (
-			<span className="controller-unit is-center is-reverse" onClick={this.handleClick}></span>
+			<span className={className} onClick={(e) => this.handleClick(e, this.props.index)}></span>
 		);
 	}
-	handleClick(){
-
+	handleClick (e, index) {
+		this.props.click(index);
 	}
 }
 
